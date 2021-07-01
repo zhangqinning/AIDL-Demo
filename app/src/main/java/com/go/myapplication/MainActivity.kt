@@ -1,6 +1,7 @@
 package com.go.myapplication
 
 import android.annotation.SuppressLint
+import android.app.Application
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
@@ -25,6 +26,7 @@ class MainActivity : AppCompatActivity() {
     val mIOnNewBookArrivedListener = object : IOnNewBookArrivedListener.Stub() {
         @Throws(RemoteException::class)
         override fun onNewBookArrived(newBook: Book?) {
+            Log.d(TAG, "mIOnNewBookArrivedListener 客户端收到回调：THREAD:${Thread.currentThread().name}  PROCESS:${Application.getProcessName()}")
             mHandler.obtainMessage(MESSAGE_NEW_BOOK_ARRIVED, newBook).sendToTarget()
         }
     }
@@ -79,7 +81,7 @@ class MainActivity : AppCompatActivity() {
         Toast.makeText(applicationContext, "正在获取中。。。", Toast.LENGTH_SHORT).show()
     }
 
-    val mConnection = object : ServiceConnection {
+    private val mConnection = object : ServiceConnection {
         override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
             val bookManager = IBookManager.Stub.asInterface(service)
             try {
@@ -103,6 +105,7 @@ class MainActivity : AppCompatActivity() {
         override fun doInBackground(vararg params: Void?): List<Book>? {
             var list: List<Book>? = null
             try {
+                Log.d(TAG, "BookListAsyncTask：doInBackground THREAD:${Thread.currentThread().name} PROCESS:${Application.getProcessName()}")
                 list = mRemoteBookManager?.bookList
             } catch (e: RemoteException) {
             }
@@ -110,6 +113,7 @@ class MainActivity : AppCompatActivity() {
         }
 
         override fun onPostExecute(result: List<Book>) {
+            Log.d(TAG, "BookListAsyncTask：onPostExecute THREAD:${Thread.currentThread().name}   PROCESS:${Application.getProcessName()}")
             var content = ""
             for (i in result.indices) {
                 content += result[i].toString() + "\n"
@@ -120,10 +124,12 @@ class MainActivity : AppCompatActivity() {
 
     inner class BookNumAsyncTask : AsyncTask<Void, Void, Int>() {
         override fun doInBackground(vararg params: Void?): Int {
+            Log.d(TAG, "BookNumAsyncTask：doInBackground THREAD:${Thread.currentThread().name}  PROCESS:${Application.getProcessName()}")
             return getListNum()
         }
 
         override fun onPostExecute(result: Int?) {
+            Log.d(TAG, "BookNumAsyncTask：doInBackground THREAD:${Thread.currentThread().name}  PROCESS:${Application.getProcessName()}")
             Toast.makeText(applicationContext, "图书数量：$result", Toast.LENGTH_SHORT).show()
         }
     }

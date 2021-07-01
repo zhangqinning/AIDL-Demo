@@ -1,6 +1,7 @@
 package com.go.myapplication
 
 import android.annotation.SuppressLint
+import android.app.Application
 import android.app.Service
 import android.content.Intent
 import android.os.*
@@ -19,6 +20,7 @@ class BookManagerService : Service() {
 
     private val mBinder = object : IBookManager.Stub() {
         override fun getBookList(): MutableList<Book> {
+            Log.d(TAG, "service getBookList service THREAD:${Thread.currentThread().name}  PROCESS:${Application.getProcessName()}")
             SystemClock.sleep(5000)
             return mBookList
         }
@@ -31,7 +33,7 @@ class BookManagerService : Service() {
             mListenerList.register(listener)
             val num = mListenerList.beginBroadcast()
             mListenerList.finishBroadcast()
-            Log.d(TAG, "添加完成，注册接口数：$num")
+            Log.d(TAG, "添加完成，注册接口数：$num service registerListener THREAD:${Thread.currentThread().name}  PROCESS:${Application.getProcessName()}")
         }
 
         @Throws(RemoteException::class)
@@ -103,7 +105,6 @@ class BookManagerService : Service() {
                 mHandler.sendMessage(Message())
             }
         }
-
     }
 
 }
